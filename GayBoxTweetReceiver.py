@@ -5,9 +5,6 @@ from twython import TwythonStreamer
 # Search terms
 TERMS = '#gay'
 
-# GPIO pin number of LED
-# LED = 7
-
 # Twitter application authentication
 APP_KEY = '2pbY32s3nZzckqvMAbK8I0LKi'
 APP_SECRET = 'aEpdBUxHl0G0DAepipi6ZXThWt9VCaYQ2Gf8FGQNFA22BqGrKJ'
@@ -26,6 +23,7 @@ def checkokay():
   if line == ' ':
     line=ser.readline()
   print 'here'
+
 ## Welcome message
 print 'Welcome To GayBox !'
 
@@ -36,11 +34,6 @@ class BlinkyStreamer(TwythonStreamer):
                         print data['text'].encode('utf-8')
                         print
                         serial.write('1')
-
-# # Setup GPIO as output
-# GPIO.setmode(GPIO.BOARD)
-# GPIO.setup(LED, GPIO.OUT)
-# GPIO.output(LED, GPIO.LOW)
 
 # Create streamer
 try:
