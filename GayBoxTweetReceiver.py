@@ -11,7 +11,7 @@ APP_SECRET = 'aEpdBUxHl0G0DAepipi6ZXThWt9VCaYQ2Gf8FGQNFA22BqGrKJ'
 OAUTH_TOKEN = '52750250-9JdCf6J6WXnCiL5fzwwGrHqHq0gw3YD07ZFKqyn3w'
 OAUTH_TOKEN_SECRET = 'xo724qyBBALSNFza1irz1eNjx0w1XI1I3OZDMNRDjqh0w'
 
-serial = serial.Serial('/dev/ttyACM1', 19200)
+serial = serial.Serial('/dev/ttyACM0', 19200)
 
 ## check serial port
 def checkokay():
@@ -31,9 +31,12 @@ print 'Welcome To GayBox !'
 class BlinkyStreamer(TwythonStreamer):
         def on_success(self, data):
                 if 'text' in data:
-                        print data['text'].encode('utf-8')
+                        formatted_text = data['text'].encode('utf-8')
+                        print formatted_text
                         print
                         serial.write('1')
+                        # serial.write(formatted_text)
+                        # serial.write(b'formatted_text')
 
 # Create streamer
 try:

@@ -3,15 +3,16 @@
 
  */
 #include <Servo.h>
+#include <LiquidCrystal.h>
 
 // Servo motor ------------------------------
 Servo prettyServo;
 int pos = 0;
 
 // RGB LEDS -------------------------------
-int redPin = 5; // LED connected on Pin 7
-int greenPin = 6; // LED connected on Pin 7
-int bluePin = 7; // LED connected on Pin 7
+int redPin = 2; // LED connected on Pin 7
+int greenPin = 3; // LED connected on Pin 7
+int bluePin = 4; // LED connected on Pin 7
 #define COMMON_ANODE
 
 // Serial Reading ---------------------------
@@ -20,35 +21,39 @@ int incomingByte = 0; // data received from serial
 // Interrupteur ---------------------------
 int inProgress = 0;
 
+// LCD ----------------------
+LiquidCrystal lcd(7,6,9,10,11,12);
 
+// SETUP ======================================================================
 void setup() {
   // initialize the digital pin as an output.
   pinMode(redPin, OUTPUT);
   pinMode(greenPin, OUTPUT);
   pinMode(bluePin, OUTPUT);
 
+  // servo init
   prettyServo.attach(8);
 
-  Serial.begin(19200);           // set up Serial library at 19200 bps
+  // lcd init
+  lcd.begin(16,2);
+  reinitLcd();
 
+  // Serial init
+  Serial.begin(19200);           // set up Serial library at 19200 bps
   Serial.println("Arduino is ready!");
 }
 
 
-// the loop routine runs over and over again forever:
+// LOOP =======================================================================
 void loop() {
-  // launchRainbow();
-  // stopRainbow();
-  //launchGayFiesta();
-  //stopGayFiesta();
-  
-
+  launchGayFiesta();
+  stopGayFiesta();
 
   if (Serial.available() > 0) {
     incomingByte = Serial.read();
-    // say what you got:
     Serial.print("I received: ");
-    Serial.println(incomingByte, DEC);
+    // Serial.println(incomingByte, DEC);
+    Serial.println(incomingByte);
 
     if (incomingByte == 49 && inProgress == 0){
       launchGayFiesta();
@@ -60,6 +65,7 @@ void loop() {
 }
 
 void launchGayFiesta() {
+  startLcd();
   freddyServoUp();
   launchRainbow();
 }
@@ -67,24 +73,30 @@ void launchGayFiesta() {
 void stopGayFiesta() {
   stopRainbow();
   freddyServoDown();
+  reinitLcd();
   delay(2000);
 }
 
-// Methods ----------------------------------------------------------
+// Methods =======================================================================
+
+// Lcd ------------------------------------------------------------------------
+void startLcd() {
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("GAY GAY GAY");
+}
+
+void reinitLcd() {
+  lcd.clear();
+  lcd.print("GayBox ");
+  lcd.setCursor(0,1);
+  lcd.print("waiting for #gay");
+}
+
+// Servo ----------------------------------------------------------------------
 void freddyServoUp() {
   prettyServo.write(90);
   delay(10);
-
-  // for(pos = 0; pos < 180; pos += 1)  // goes from 0 degrees to 180 degrees
-  // {                                  // in steps of 1 degree
-  //   prettyServo.write(pos);              // tell servo to go to position in variable 'pos'
-  //   delay(15);                       // waits 15ms for the servo to reach the position
-  // }
-  // for(pos = 180; pos>=1; pos-=1)     // goes from 180 degrees to 0 degrees
-  // {
-  //   prettyServo.write(pos);              // tell servo to go to position in variable 'pos'
-  //   delay(15);                       // waits 15ms for the servo to reach the position
-  // }
 }
 
 void freddyServoDown() {
@@ -93,6 +105,7 @@ void freddyServoDown() {
   inProgress = 0;
 }
 
+// RGB leds -------------------------------------------------------------------
 void launchRainbow(){
   Serial.println("Launch Rainbow");
   inProgress = 1;
@@ -129,5 +142,8 @@ void setColor(int red, int green, int blue) {
   analogWrite(greenPin, green);
   analogWrite(bluePin, blue);
 }
+
+
+
 
 
