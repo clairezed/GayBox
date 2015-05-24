@@ -4,6 +4,8 @@
  */
 #include <Servo.h>
 #include <LiquidCrystal.h>
+#include "pitches.h"
+#define NO_SOUND 0 
 
 // Servo motor ------------------------------
 Servo prettyServo;
@@ -15,11 +17,29 @@ int greenPin = 3; // LED connected on Pin 7
 int bluePin = 4; // LED connected on Pin 7
 #define COMMON_ANODE
 
+// SPEAKER -------------------------------
+int speaker = 13; //Speaker connected on Pin 13
+
 // Serial Reading ---------------------------
 int incomingByte = 0; // data received from serial
 
 // Interrupteur ---------------------------
 int inProgress = 0;
+
+//array of notes
+int melody[] = {
+  NOTE_A4,NOTE_G4,NOTE_A4,NOTE_G4,NO_SOUND
+};
+
+// note duration: 1 = whole note, 2 = half note, 4 = quarter note, 8 = eighth note, etc.
+int noteDurations[] = {
+  2,4,8,8
+};
+
+unsigned long previousMillisMusic = 0; 
+
+// Vitesse de la musique ---------------------------
+int pace = 1450;
 
 // LCD ----------------------
 LiquidCrystal lcd(7,6,9,10,11,12);
@@ -67,6 +87,7 @@ void loop() {
 void launchGayFiesta() {
   startLcd();
   freddyServoUp();
+  startMusic();
   launchRainbow();
 }
 
@@ -103,6 +124,19 @@ void freddyServoDown() {
   prettyServo.write(0);
   delay(10);
   inProgress = 0;
+}
+
+void startMusic() {
+  int delayBetweenNotes = 0;
+  for (int note = 0; note < 4; note++) { //counter of Notes
+    unsigned long currentMillisMusic = millis();
+    int duration = pace/noteDurations[note]; //Adjust duration with the pace of music
+    if(currentMillisMusic - previousMillisMusic >= delayBetweenNotes) {
+      tone(speaker, melody[note],duration); //Play note
+      previousMillisMusic = currentMillisMusic;
+      delayBetweenNotes = duration * 1.2;
+    }
+  }
 }
 
 // RGB leds -------------------------------------------------------------------
