@@ -6,7 +6,7 @@ We ended with a box reacting in various ways at the appearance of #gay on twitte
 The box is build around a arduino board connected to a laptop running a python script checking twitter, through serial port.
 The arduino board pilots rgb leds, a speaker, a lcd screen and a servo motor
 
-[Short video of the object](blob:https%3A//vine.co/4648c934-ad65-4e07-b2b8-080d61e42ebe)
+[Short video of the object](https://vine.co/v/eqTwdr5naHQ)
 
 ## Hardware
 
