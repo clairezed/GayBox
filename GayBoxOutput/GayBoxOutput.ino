@@ -5,7 +5,7 @@
 #include <Servo.h>
 #include <LiquidCrystal.h>
 #include "pitches.h"
-#define NO_SOUND 0 
+#define NO_SOUND 0
 
 // Servo motor ------------------------------
 Servo prettyServo;
@@ -15,16 +15,19 @@ int pos = 0;
 int redPin = 2; // LED connected on Pin 7
 int greenPin = 3; // LED connected on Pin 7
 int bluePin = 4; // LED connected on Pin 7
+// Comment if you have RGB common cathode leds :
 #define COMMON_ANODE
+// colors of the leds for each YMCA tune
+int colors[4][3] = {
+  {255, 0, 0},    // W color
+  {80, 0, 80},    // M color
+  {0, 0, 255},    // C color
+  {255, 255, 0}   // A color
+};
 
-// SPEAKER -------------------------------
+
+// SPEAKER -------------------------------------------
 int speaker = 13; //Speaker connected on Pin 13
-
-// Serial Reading ---------------------------
-int incomingByte = 0; // data received from serial
-
-// Interrupteur ---------------------------
-int inProgress = 0;
 
 //array of notes
 int melody[] = {
@@ -36,13 +39,18 @@ int noteDurations[] = {
   2,4,8,8
 };
 
-unsigned long previousMillisMusic = 0; 
-
 // Vitesse de la musique ---------------------------
 int pace = 1450;
 
-// LCD ----------------------
+// Serial Reading ---------------------------
+int incomingByte = 0; // data received from serial
+
+// Switch ---------------------------------
+int inProgress = 0;
+
+// LCD ------------------------------------------
 LiquidCrystal lcd(7,6,9,10,11,12);
+
 
 // SETUP ======================================================================
 void setup() {
@@ -53,6 +61,7 @@ void setup() {
 
   // servo init
   prettyServo.attach(8);
+  prettyServo.write(pos);
 
   // lcd init
   lcd.begin(16,2);
@@ -66,13 +75,13 @@ void setup() {
 
 // LOOP =======================================================================
 void loop() {
-  launchGayFiesta();
-  stopGayFiesta();
+  // Decomment to launch automatically the program without twitter connection (debug)
+  // launchGayFiesta();
+  // stopGayFiesta();
 
   if (Serial.available() > 0) {
     incomingByte = Serial.read();
     Serial.print("I received: ");
-    // Serial.println(incomingByte, DEC);
     Serial.println(incomingByte);
 
     if (incomingByte == 49 && inProgress == 0){
@@ -85,10 +94,11 @@ void loop() {
 }
 
 void launchGayFiesta() {
+  // lock the switch to prevent another incoming tweet to interrupt the sequence
+  inProgress = 1;
   startLcd();
   freddyServoUp();
-  startMusic();
-  launchRainbow();
+  launchRainbowAndMusic();
 }
 
 void stopGayFiesta() {
@@ -96,6 +106,8 @@ void stopGayFiesta() {
   freddyServoDown();
   reinitLcd();
   delay(2000);
+  // unlock the switch
+  inProgress = 0;
 }
 
 // Methods =======================================================================
@@ -121,41 +133,18 @@ void freddyServoUp() {
 }
 
 void freddyServoDown() {
-  prettyServo.write(0);
+  prettyServo.write(pos);
   delay(10);
-  inProgress = 0;
 }
 
-void startMusic() {
-  int delayBetweenNotes = 0;
-  for (int note = 0; note < 4; note++) { //counter of Notes
-    unsigned long currentMillisMusic = millis();
+// Leds and tunes ----------------------------------------------------------------------
+void launchRainbowAndMusic() {
+  for (int note = 0; note < 4; note++) {
     int duration = pace/noteDurations[note]; //Adjust duration with the pace of music
-    if(currentMillisMusic - previousMillisMusic >= delayBetweenNotes) {
-      tone(speaker, melody[note],duration); //Play note
-      previousMillisMusic = currentMillisMusic;
-      delayBetweenNotes = duration * 1.2;
-    }
+    tone(speaker, melody[note],duration); //Play note
+    setColor(colors[note][0],colors[note][1], colors[note][2]); // display Leds color
+    delay(duration * 1.2);
   }
-}
-
-// RGB leds -------------------------------------------------------------------
-void launchRainbow(){
-  Serial.println("Launch Rainbow");
-  inProgress = 1;
-                                // supposed   // COMMON_ANODE   // COMMON_CATHODE
-  setColor(255, 0, 0);       // red        // pink           // yellow
-  delay(1300);
-  setColor(0, 255, 255);     // aqua       // yellow-green   // pink
-  delay(700);
-  setColor(0, 0, 255);       // blue       // blue           // red
-  delay(400);
-  setColor(255, 255, 0);     // yellow     // red            // blue
-  delay(400);
-  // setColor(0, 255, 0);       // green      // red            // blue
-  // delay(500);
-  // setColor(80, 0, 80);       // purple     // red - pink       // yellow-green
-  // delay(500);
 }
 
 void stopRainbow(){
@@ -176,8 +165,4 @@ void setColor(int red, int green, int blue) {
   analogWrite(greenPin, green);
   analogWrite(bluePin, blue);
 }
-
-
-
-
 
